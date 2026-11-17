@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ Biến đổi Địa chỉ</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 30px auto; padding: 20px; background: #f9f9f9; }
+        .container { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        textarea, input { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result-box { margin-top: 20px; background: #e9ecef; padding: 15px; border-radius: 4px; max-height: 300px; overflow-y: auto; }
+        .addr-item { background: #fff; padding: 8px; margin-bottom: 5px; border-left: 3px solid #007bff; font-family: monospace; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Công cụ Biến đổi Địa chỉ</h2>
+    <label for="baseAddress">Nhập địa chỉ gốc:</label>
+    <textarea id="baseAddress" rows="3" placeholder="Ví dụ: Số 123, Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh">Số 123, Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh</textarea>
+    
+    <button onclick="generateAddresses()">Tạo Biến Thể</button>
+
+    <div class="result-box" id="resultBox">
+        <strong>Danh sách biến thể sẽ hiển thị ở đây...</strong>
+    </div>
+</div>
+
+<script>
+function generateAddresses() {
+    let raw = document.getElementById('baseAddress').value.trim();
+    if (!raw) {
+        alert("Vui lòng nhập địa chỉ gốc!");
+        return;
+    }
+
+    // Các quy tắc thay thế từ khóa phổ biến trong tiếng Việt
+    let variations = new Set();
+    variations.add(raw);
+
+    // Thay thế các từ viết tắt / đầy đủ
+    let text1 = raw
+        .replace(/Số\s*/gi, "S.")
+        .replace(/Đường\s*/gi, "Đ. ")
+        .replace(/Phường\s*/gi, "P. ")
+        .replace(/Quận\s*/gi, "Q. ")
+        .replace(/Thành phố\s*/gi, "TP. ")
+        .replace(/Hồ Chí Minh/gi, "HCM");
+
+    let text2 = raw
+        .replace(/S\.\s*/gi, "Số ")
+        .replace(/Đ\.\s*/gi, "Đường ")
+        .replace(/P\.\s*/gi, "Phường ")
+        .replace(/Q\.\s*/gi, "Quận ")
+        .replace(/TP\.\s*/gi, "Thành phố ")
+        .replace(/HCM/gi, "Hồ Chí Minh");
+
+    variations.add(text1);
+    variations.add(text2);
+
+    // Thêm các biến thể biến đổi dấu câu nhỏ (thay dấu phẩy bằng khoảng trắng hoặc gạch ngang)
+    variations.add(raw.replace(/,/g, " -"));
+    variations.add(raw.replace(/,/g, ""));
+    variations.add(raw.replace(/\s+/g, " ")); // chuẩn hóa khoảng trắng
+
+    // Tạo thêm biến thể phụ bằng cách thêm các ghi chú nhỏ không ảnh hưởng giao hàng
+    let notes = [
+        " (Giao giờ hành chính)",
+        " (Gọi trước khi giao)",
+        " (Nhà màu trắng)",
+        " (Cạnh tạp hóa)",
+        " (Tầng trệt)"
+    ];
+
+    let baseList = Array.from(variations);
+    baseList.forEach(addr => {
+        notes.forEach(note => {
+            variations.add(addr + note);
+        });
+    });
+
+    // Hiển thị kết quả
+    let resultBox = document.getElementById('resultBox');
+    resultBox.innerHTML = `<strong>Tổng số biến thể: ${variations.size}</strong><br><br>`;
+    
+    variations.forEach(item => {
+        let div = document.createElement('div');
+        div.className = 'addr-item';
+        div.innerText = item;
+        resultBox.appendChild(div);
+    });
+}
+</script>
+
+</body>
+</html>
